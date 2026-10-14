@@ -1,0 +1,70 @@
+<title>Billete de 100</title>
+<style>
+:root{--bg:#F5F1E6;--fg:#1C2B24;--muted:#5B655E;--note:#DCE6D2;--noteb:#6E8A5E;--blue:#2B6A8A}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);overflow:hidden}
+body{font-family:'DM Sans',Arial,sans-serif;color:var(--fg)}
+#s{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:center;padding:96px 128px}
+.eb{font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#8C6418;font-weight:700}
+h1{font-family:'Fraunces',Georgia,serif;font-size:68px;font-weight:600;line-height:1.1;margin-top:10px}
+#tabs{position:absolute;left:128px;top:270px;display:flex;gap:12px}
+#tabs p{font-size:28px;font-weight:700;padding:8px 22px;border-radius:999px;border:2px solid #CFC4A8;color:var(--muted);transition:all .3s}
+#tabs p.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+#note{position:absolute;left:128px;top:370px;width:1240px;height:500px;border-radius:22px;background:var(--note);border:6px solid var(--noteb);overflow:hidden;box-shadow:0 18px 40px rgba(28,43,36,.18)}
+#note:before{content:"";position:absolute;inset:18px;border:3px dashed rgba(110,138,94,.6);border-radius:12px}
+.big{position:absolute;font-family:'Fraunces',Georgia,serif;font-weight:700;color:var(--noteb);font-size:96px;line-height:1}
+#emb{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:250px;height:250px;border-radius:50%;border:6px solid var(--noteb);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',Georgia,serif;font-size:96px;font-weight:700;color:var(--noteb)}
+#segs{position:absolute;inset:0;display:flex}
+.sg{height:100%;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border-right:4px dashed transparent;transition:background .5s,transform .6s,box-shadow .6s}
+.sg b{font-family:'Fraunces',Georgia,serif;font-size:60px;line-height:1;opacity:0;transition:opacity .4s .2s}
+.sg span{font-size:22px;font-weight:700;opacity:0;transition:opacity .4s .3s;text-align:center;line-height:1.1;padding:0 4px}
+.sg.cut{border-right-color:rgba(245,241,230,.9);transform:translateY(-14px) rotate(-1deg);box-shadow:0 10px 18px rgba(0,0,0,.18)}
+.sg.cut b,.sg.cut.lab span{opacity:1}
+.sg.keep{background:var(--blue)!important;transform:scale(1.04);box-shadow:0 0 0 6px #F5F1E6,0 0 50px rgba(43,106,138,.7);z-index:2}
+.sg.keep b,.sg.keep span{opacity:1;color:#F5F8FA}
+#cap{position:absolute;left:128px;top:900px;display:flex;align-items:center;gap:18px}
+#chip{width:40px;height:40px;border-radius:10px;background:#D8CFB8;transition:background .3s}
+#ctx{font-family:'Fraunces',Georgia,serif;font-size:46px;font-weight:600}
+#side{position:absolute;left:1420px;top:370px;width:372px;background:var(--fg);color:var(--bg);border-radius:20px;padding:32px 30px}
+#side h3{font-size:26px;font-weight:700;color:#E0B252;letter-spacing:2px;text-transform:uppercase;line-height:1.3}
+.sc{display:flex;justify-content:space-between;align-items:baseline;margin-top:22px;opacity:.25;transition:opacity .4s}
+.sc.on{opacity:1}
+.sc p{font-size:30px;font-weight:700}
+.sc b{font-family:'Fraunces',Georgia,serif;font-size:56px;color:#7FC0E0}
+</style>
+<div id="s">
+  <p class="eb">A dónde va cada dólar</p>
+  <h1>De cada 100 dólares que entran…</h1>
+  <div id="tabs"></div>
+  <div id="note">
+    <p class="big" style="left:46px;top:40px">100</p><p class="big" style="right:46px;bottom:40px">100</p>
+    <div id="emb">U$</div>
+    <div id="segs"></div>
+  </div>
+  <div id="cap"><div id="chip"></div><p id="ctx"></p></div>
+  <div id="side"><h3>De cada 100 U$,<br>te quedan</h3><div id="sc"></div></div>
+</div>
+<script>
+const RUB=[['Alquiler','#B8862B','#1C2B24'],['Labores','#5C3D2E','#F5F1E6'],['Semilla','#E3A72F','#1C2B24'],['Fertilizantes','#4E8A3E','#F5F1E6'],['Agroquímicos','#C2452D','#F5F1E6'],['Cosecha y seguro','#8B6FBF','#F5F1E6'],['Gerenciamiento','#8A9499','#1C2B24']];
+const D=[['Girasol AO',[33,8,8,8,9,8,2,24]],['Girasol',[34,8,7,8,10,8,3,22]],['Maíz',[32,10,8,15,9,10,2,14]],['Soja de 1ra',[46,9,8,3,10,13,4,7]]];
+const W=1228,tabs=document.getElementById('tabs'),segs=document.getElementById('segs'),sc=document.getElementById('sc');
+const chip=document.getElementById('chip'),ctx=document.getElementById('ctx');
+D.forEach(([n,v])=>{const t=document.createElement('p');t.textContent=n;tabs.appendChild(t);
+ const r=document.createElement('div');r.className='sc';r.innerHTML=`<p>${n}</p><b>${v[7]}</b>`;sc.appendChild(r);});
+let timer=null;const wait=ms=>new Promise(r=>timer=setTimeout(r,ms));
+async function crop(ci){const [n,v]=D[ci];
+ [...tabs.children].forEach((t,i)=>t.classList.toggle('on',i===ci));
+ segs.innerHTML='';chip.style.background='#D8CFB8';ctx.textContent=n+': entran 100 U$';
+ const els=v.map((p,i)=>{const e=document.createElement('div');e.className='sg';e.style.width=(p/100*W)+'px';
+  const nm=i<7?RUB[i][0]:'Margen';e.innerHTML=`<b>${p}</b><span>${nm}</span>`;if(p>=12)e.classList.add('lab');segs.appendChild(e);return e;});
+ await wait(1300);
+ for(let i=0;i<7;i++){const e=els[i];e.style.background=RUB[i][1];e.style.color=RUB[i][2];e.querySelector('span').style.color=RUB[i][2];e.classList.add('cut');
+  chip.style.background=RUB[i][1];ctx.textContent=`${v[i]} U$ se van en ${RUB[i][0].toLowerCase()}`;await wait(i===0?1700:1100);}
+ els[7].classList.add('keep');chip.style.background='#2B6A8A';ctx.textContent=`Te quedan ${v[7]} U$ de margen`;
+ sc.children[ci].classList.add('on');await wait(3200);}
+async function play(){clearTimeout(timer);[...sc.children].forEach(c=>c.classList.remove('on'));
+ for(let i=0;i<D.length;i++)await crop(i);await wait(3000);play();}
+addEventListener('keydown',e=>{if(e.key==='r'||e.key==='R')location.reload();});
+function fit(){const s=document.getElementById('s'),k=Math.min(innerWidth/1920,innerHeight/1080);s.style.transform=`translate(-50%,-50%) scale(${k})`;}
+addEventListener('resize',fit);fit();window.replay=()=>{};play();
+</script>

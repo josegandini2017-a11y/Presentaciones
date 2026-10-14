@@ -1,0 +1,68 @@
+<title>Costos por Rubro</title>
+<style>
+:root{--bg:#F5F1E6;--fg:#1C2B24;--muted:#5B655E;--gold:#B8862B;--blue:#2B6A8A}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);overflow:hidden}
+body{font-family:'DM Sans',Arial,sans-serif;color:var(--fg)}
+#s{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:center;padding:110px 128px}
+.eb{font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#8C6418;font-weight:700}
+h1{font-family:'Fraunces',Georgia,serif;font-size:68px;font-weight:600;line-height:1.1;margin-top:10px}
+#alq{position:absolute;right:128px;top:96px;background:var(--gold);border-radius:16px;padding:18px 30px}
+#alq p{font-size:24px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+#alq b{display:block;font-family:'Fraunces',Georgia,serif;font-size:64px;line-height:1.05}
+#alq span{font-size:24px;color:#3A2A0A}
+#step{position:absolute;left:128px;top:300px;height:84px;display:flex;align-items:center;gap:20px}
+#chip{width:44px;height:44px;border-radius:10px;transition:background .3s}
+#stxt{font-family:'Fraunces',Georgia,serif;font-size:52px;font-weight:600}
+#dots{display:flex;gap:10px;margin-left:24px}
+#dots i{width:14px;height:14px;border-radius:50%;background:#D8CFB8;transition:background .3s}
+#dots i.on{background:var(--fg)}
+#rows{position:absolute;left:128px;right:128px;top:420px;display:flex;flex-direction:column;gap:30px}
+.r{display:flex;align-items:center;gap:24px}
+.n{width:240px;font-size:34px;font-weight:700}
+.bar{position:relative;height:96px;border:3px dashed #CFC4A8;border-radius:10px;display:flex;overflow:hidden;background:#FBF9F3}
+.seg{height:100%;width:0;display:flex;align-items:center;justify-content:center;overflow:hidden;transition:width .9s cubic-bezier(.3,.8,.3,1)}
+.seg p{font-size:30px;font-weight:700;white-space:nowrap;opacity:0;transition:opacity .4s .5s}
+.seg.show p{opacity:1}
+.rest{flex:1;display:flex;align-items:center;justify-content:center;transition:background .6s}
+.rest p{font-family:'Fraunces',Georgia,serif;font-size:52px;font-weight:600;color:#F5F8FA;opacity:0;transition:opacity .5s}
+.r.done .rest{background:var(--blue)}
+.r.done .rest p{opacity:1}
+.tot{width:190px;font-size:26px;color:var(--muted);line-height:1.2}
+.tot b{font-family:'Fraunces',Georgia,serif;font-size:40px;color:var(--fg)}
+.r.done .tot b{color:var(--blue)}
+#foot{position:absolute;left:128px;right:260px;bottom:56px;font-size:24px;color:var(--muted)}
+</style>
+<div id="s">
+  <p class="eb">A dónde va cada dólar · U$/ha</p>
+  <h1>Así se reparte una hectárea</h1>
+  <div id="alq"><p>Alquiler · se paga primero</p><b>426 U$/ha</b><span>12 qq de soja · todos los cultivos</span></div>
+  <div id="step"><div id="chip"></div><p id="stxt"></p><div id="dots"></div></div>
+  <div id="rows"></div>
+  <p id="foot">Barra = lo que entra por hectárea después de pagar el alquiler. Cada rubro se come su parte; lo azul es lo que queda.</p>
+</div>
+<script>
+const RUB=[['Labores','#5C3D2E','#F5F1E6'],['Semilla','#E3A72F','#1C2B24'],['Fertilizantes','#4E8A3E','#F5F1E6'],['Agroquímicos','#C2452D','#F5F1E6'],['Cosecha y seguro','#8B6FBF','#F5F1E6'],['Gerenciamiento','#8A9499','#1C2B24']];
+const D=[['Girasol AO',[101,99,100,120,100,30],315],['Girasol',[99,90,100,118,100,40],269],['Maíz',[136,108,195,122,135,30],195],['Soja de 1ra',[82,70,31,94,120,40],60]];
+const W=1180,MAX=921,K=W/MAX;
+const rows=document.getElementById('rows'),dots=document.getElementById('dots');
+RUB.concat([['Lo que queda','#2B6A8A']]).forEach(()=>dots.appendChild(document.createElement('i')));
+const R=D.map(([n,c,m])=>{const tot=c.reduce((a,b)=>a+b,0)+m;
+ const el=document.createElement('div');el.className='r';
+ el.innerHTML=`<p class="n">${n}</p><div class="bar" style="width:${tot*K}px">${c.map((v,i)=>`<div class="seg" style="background:${RUB[i][1]}"><p style="color:${RUB[i][2]}">${v}</p></div>`).join('')}<div class="rest"><p>+${m}</p></div></div><p class="tot">Entran<br><b>${tot}</b></p>`;
+ rows.appendChild(el);return {el,c,m,segs:[...el.querySelectorAll('.seg')]};});
+const chip=document.getElementById('chip'),stxt=document.getElementById('stxt');
+let step=-1,timer=null;
+function setStep(k){step=k;[...dots.children].forEach((d,i)=>d.classList.toggle('on',i<=k));
+ if(k<RUB.length){chip.style.background=RUB[k][1];stxt.textContent=(k+1)+' · '+RUB[k][0];
+  R.forEach(r=>{const s=r.segs[k];s.style.width=(r.c[k]*K)+'px';if(r.c[k]*K>=70)s.classList.add('show');});}
+ else{chip.style.background='#2B6A8A';stxt.textContent='Lo que queda: el margen';R.forEach(r=>r.el.classList.add('done'));}}
+function reset(){R.forEach(r=>{r.el.classList.remove('done');r.segs.forEach(s=>{s.style.width='0';s.classList.remove('show');});});
+ chip.style.background='#D8CFB8';stxt.textContent='Entra la plata de la cosecha…';[...dots.children].forEach(d=>d.classList.remove('on'));}
+function play(){clearTimeout(timer);reset();let k=0;
+ const next=()=>{setStep(k);k++;timer=setTimeout(k<=RUB.length?next:()=>{timer=setTimeout(play,5000)},k<=RUB.length?1500:0);};
+ timer=setTimeout(next,1400);}
+addEventListener('keydown',e=>{if(e.key==='r'||e.key==='R')play();});
+function fit(){const s=document.getElementById('s'),k=Math.min(innerWidth/1920,innerHeight/1080);s.style.transform=`translate(-50%,-50%) scale(${k})`;}
+addEventListener('resize',fit);fit();window.replay=play;play();
+</script>

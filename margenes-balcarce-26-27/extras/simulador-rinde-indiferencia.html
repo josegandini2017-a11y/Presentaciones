@@ -1,0 +1,248 @@
+<title>Rinde de Indiferencia 26/27</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500..700&family=DM+Sans:wght@400..700&display=swap">
+<style>
+/* Layout: a field-notebook calculator. Controls left, the answer and its picture right; stacks on phones. */
+:root {
+  --bg: #F5F1E6; --panel: #FBF9F3; --line: #DDD5C2; --fg: #1C2B24; --muted: #5B655E;
+  --gold: #8C6418; --gain: #2B6A8A; --loss: #B4561A; --cost: #CFC4A8;
+  --display: 'Fraunces', Georgia, serif; --body: 'DM Sans', Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #16211C; --panel: #1E2B25; --line: #34443B; --fg: #EEE9DC; --muted: #A9B5AD;
+  --gold: #E0B252; --gain: #6FAED0; --loss: #E8925A; --cost: #5A5442; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #16211C; --panel: #1E2B25; --line: #34443B; --fg: #EEE9DC; --muted: #A9B5AD;
+  --gold: #E0B252; --gain: #6FAED0; --loss: #E8925A; --cost: #5A5442; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.5; padding-inline: 20px; padding-block: 28px 48px }
+.wrap { max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px }
+.eyebrow { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; color: var(--gold) }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(30px, 4.5vw, 46px); line-height: 1.08; margin: 6px 0 8px; text-wrap: balance }
+.lead { color: var(--muted); max-width: 62ch; margin: 0 }
+.crops { display: flex; flex-wrap: wrap; gap: 8px }
+.crops input { position: absolute; opacity: 0; pointer-events: none }
+.crops label { border: 1px solid var(--line); background: var(--panel); padding: 8px 14px; border-radius: 999px; cursor: pointer; font-weight: 600; font-size: 15px }
+.crops input:checked + label { background: var(--fg); color: var(--bg); border-color: var(--fg) }
+.crops input:focus-visible + label { outline: 2px solid var(--gold); outline-offset: 2px }
+.grid { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 24px; align-items: start }
+@media (max-width: 820px) { .grid { grid-template-columns: minmax(0, 1fr) } }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 20px }
+.controls { display: flex; flex-direction: column; gap: 22px }
+.ctl label { display: flex; justify-content: space-between; gap: 12px; font-weight: 600; font-size: 15px }
+.ctl output { font-variant-numeric: tabular-nums; font-family: var(--display); font-size: 20px }
+.ctl small { display: block; color: var(--muted); font-size: 13px; margin-top: 2px }
+input[type=range] { width: 100%; accent-color: var(--gain); margin-top: 8px }
+button { font: inherit; font-weight: 600; font-size: 14px; background: transparent; color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; cursor: pointer; align-self: flex-start }
+button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px }
+.result { display: flex; flex-direction: column; gap: 18px; min-width: 0 }
+.eq { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px }
+.term { display: flex; flex-direction: column; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg) }
+.term span { font-size: 12px; color: var(--muted); letter-spacing: .04em }
+.term b { font-family: var(--display); font-size: 26px; font-variant-numeric: tabular-nums; font-weight: 600 }
+.term.answer { background: var(--fg); border-color: var(--fg) }
+.term.answer span, .term.answer b { color: var(--bg) }
+.op { font-family: var(--display); font-size: 28px; color: var(--muted) }
+.say { font-size: 17px; max-width: 64ch; margin: 0 }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px }
+@media (max-width: 520px) { .stats { grid-template-columns: minmax(0, 1fr) } }
+.stat span { font-size: 13px; color: var(--muted) }
+.stat b { display: block; font-family: var(--display); font-size: 30px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.15 }
+.pill { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; color: var(--bg) }
+.gain { color: var(--gain) } .loss { color: var(--loss) }
+.pill.gain { background: var(--gain); color: var(--bg) } .pill.loss { background: var(--loss); color: var(--bg) }
+.chart { width: 100%; overflow-x: auto }
+svg { display: block; width: 100%; height: auto; min-width: 320px }
+svg text { font-family: var(--body); font-size: 13px; fill: var(--muted) }
+.foot { color: var(--muted); font-size: 13px; max-width: 80ch }
+@media (prefers-reduced-motion: no-preference) { #line, #riDot, #expDot { transition: all .15s ease } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Balcarce · Campaña 26/27 · Suelos profundos</div>
+    <h1>¿Cuántas toneladas hacen falta para no perder plata?</h1>
+    <p class="lead">El rinde de indiferencia es la cosecha que paga justo todos los gastos de la hectárea, alquiler incluido. Por debajo se pierde; cada tonelada por encima es ganancia. Mové el rinde, el precio o el alquiler y mirá dónde la línea cruza el cero.</p>
+  </header>
+
+  <div class="crops" role="radiogroup" aria-label="Cultivo" id="crops"></div>
+
+  <div class="grid">
+    <div class="panel controls">
+      <div class="ctl">
+        <label for="rinde">Rinde esperado <output id="rindeOut"></output></label>
+        <input type="range" id="rinde">
+        <small id="rindeHint"></small>
+      </div>
+      <div class="ctl">
+        <label for="precio">Precio pizarra <output id="precioOut"></output></label>
+        <input type="range" id="precio">
+        <small>Precio bruto de pizarra. Se descuentan gastos comerciales; en girasol la bonificación por materia grasa sube y baja con el precio.</small>
+      </div>
+      <div class="ctl">
+        <label for="alq">Alquiler <output id="alqOut"></output></label>
+        <input type="range" id="alq" min="6" max="16" step="0.5">
+        <small id="alqHint"></small>
+      </div>
+      <button type="button" id="reset">Volver a los valores de la planilla</button>
+    </div>
+
+    <div class="result">
+      <div class="panel" style="display:flex;flex-direction:column;gap:14px">
+        <div class="eq" aria-live="polite">
+          <div class="term"><span>Costo total por ha</span><b id="eqC"></b></div>
+          <div class="op">÷</div>
+          <div class="term"><span>Lo que cobro por tonelada</span><b id="eqN"></b></div>
+          <div class="op">=</div>
+          <div class="term answer"><span>Rinde de indiferencia</span><b id="eqRI"></b></div>
+        </div>
+        <p class="say" id="say"></p>
+      </div>
+
+      <div class="stats">
+        <div class="panel stat"><span>Colchón de rinde</span><b id="colchon"></b><span id="colchonT"></span></div>
+        <div class="panel stat"><span>Margen bruto</span><b id="margen"></b><span id="margenT"></span></div>
+        <div class="panel stat"><span>Precio dolor (pizarra)</span><b id="dolor"></b><span id="dolorT"></span></div>
+      </div>
+
+      <div class="panel chart">
+        <svg id="svg" viewBox="0 0 640 300" role="img" aria-label="Margen bruto según el rinde">
+          <rect id="lossBand" fill="var(--loss)" opacity=".10"></rect>
+          <rect id="gainBand" fill="var(--gain)" opacity=".10"></rect>
+          <g id="grid"></g>
+          <line id="zero" stroke="var(--fg)" stroke-width="1.5"></line>
+          <line id="line" stroke="var(--fg)" stroke-width="3" fill="none"></line>
+          <line id="riDrop" stroke="var(--fg)" stroke-dasharray="4 4"></line>
+          <line id="expDrop" stroke="var(--gain)" stroke-dasharray="4 4"></line>
+          <circle id="riDot" r="7" fill="var(--fg)"></circle>
+          <circle id="expDot" r="7" fill="var(--gain)"></circle>
+          <text id="riLbl" text-anchor="middle" style="fill:var(--fg);font-weight:700"></text>
+          <text id="expLbl" text-anchor="middle" style="fill:var(--gain);font-weight:700"></text>
+          <text x="58" y="18" id="yLbl">Margen U$/ha</text>
+          <text x="600" y="292" text-anchor="end">Rinde t/ha</text>
+          <text id="lossTxt" style="fill:var(--loss);font-weight:700">Pérdida</text>
+          <text id="gainTxt" style="fill:var(--gain);font-weight:700" text-anchor="end">Ganancia</text>
+        </svg>
+      </div>
+      <p class="foot">Fuente: Proyección Siembras Balcarce 26/27. Costos de la planilla sin abrir (labores, insumos, cosecha, seguro, gerenciamiento y alquiler). Alquiler en quintales de soja a 355 U$/t. Suelos profundos.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// R rinde t/ha, P pizarra U$/t, k = cuánto cambia el neto por cada U$ de pizarra, N neto U$/t, C costo total U$/ha, A alquiler U$/ha
+const CROPS = [
+  { id: 'maiz', name: 'Maíz', R: 8.5, P: 200, k: 1, N: 158.4192, C: 1152.01, A: 426 },
+  { id: 'gir', name: 'Girasol', R: 2.6, P: 450, k: 1.13, N: 477.7192, C: 972.71, A: 426 },
+  { id: 'girao', name: 'Girasol AO', R: 2.6, P: 450, k: 1.127, N: 496.5848, C: 975.73, A: 426 },
+  { id: 'soja1', name: 'Soja de 1ra', R: 2.8, P: 355, k: 1, N: 329.25, C: 862.1697, A: 426 },
+];
+const QQ = 35.5; // U$ por quintal de soja
+const $ = id => document.getElementById(id);
+const f = (v, d = 0) => v.toLocaleString('es-AR', { minimumFractionDigits: d, maximumFractionDigits: d });
+let crop = CROPS[0];
+
+const box = $('crops');
+CROPS.forEach((c, i) => {
+  box.insertAdjacentHTML('beforeend',
+    `<input type="radio" name="crop" id="c-${c.id}" value="${c.id}" ${i === 0 ? 'checked' : ''}><label for="c-${c.id}">${c.name}</label>`);
+});
+box.addEventListener('change', e => { crop = CROPS.find(c => c.id === e.target.value); setup(); });
+
+function setup() {
+  const r = $('rinde'), p = $('precio');
+  const step = crop.R < 3 ? 0.05 : 0.1;
+  r.min = (Math.round(crop.R * 0.5 / step) * step).toFixed(2); r.max = (Math.round(crop.R * 1.4 / step) * step).toFixed(2); r.step = step; r.value = crop.R;
+  p.min = Math.round(crop.P * 0.6); p.max = Math.round(crop.P * 1.4); p.step = 1; p.value = crop.P;
+  $('alq').value = 12;
+  $('rindeHint').textContent = `Planilla: ${f(crop.R, 1)} t/ha`;
+  render();
+}
+$('reset').addEventListener('click', setup);
+['rinde', 'precio', 'alq'].forEach(id => $(id).addEventListener('input', render));
+
+function render() {
+  const R = +$('rinde').value, P = +$('precio').value, qq = +$('alq').value;
+  const share = crop.A / 426;
+  const alq = share * qq * QQ;
+  const C = crop.C - crop.A + alq;
+  const N = crop.N + (P - crop.P) * crop.k;
+  const RI = N > 0 ? C / N : Infinity;
+  const M = R * N - C;
+  const col = (R - RI) / R;
+  const dolor = crop.P + (C / R - crop.N) / crop.k;
+
+  $('rindeOut').textContent = `${f(R, 2)} t/ha`;
+  $('precioOut').textContent = `${f(P)} U$/t`;
+  $('alqOut').textContent = `${f(qq, 1)} qq soja`;
+  $('alqHint').textContent = share < 1
+    ? `A este cultivo le toca ${f(share * 100)}%: ${f(alq)} U$/ha`
+    : `${f(alq)} U$/ha`;
+
+  $('eqC').textContent = `${f(C)} U$`;
+  $('eqN').textContent = `${f(N)} U$/t`;
+  $('eqRI').textContent = `${f(RI, 2)} t/ha`;
+
+  const t = Math.abs(R - RI);
+  $('say').innerHTML = M >= 0
+    ? `Con <b>${f(RI, 2)} t</b> se pagan todos los gastos. Si cosechás las ${f(R, 2)} t esperadas, sobran <b class="gain">${f(t, 2)} t</b>, que a ${f(N)} U$/t son <b class="gain">${f(M)} U$/ha</b> de ganancia.`
+    : `Hacen falta <b>${f(RI, 2)} t</b> para pagar los gastos. Con ${f(R, 2)} t faltan <b class="loss">${f(t, 2)} t</b>: se pierden <b class="loss">${f(-M)} U$/ha</b>.`;
+
+  $('colchon').textContent = `${f(col * 100)}%`;
+  $('colchon').className = col >= 0 ? 'gain' : 'loss';
+  $('colchonT').innerHTML = col >= 0
+    ? `<span class="pill gain">aguanta</span> ${f(t, 2)} t menos`
+    : `<span class="pill loss">sin colchón</span> faltan ${f(t, 2)} t`;
+  $('margen').textContent = `${M >= 0 ? '' : '−'}${f(Math.abs(M))}`;
+  $('margen').className = M >= 0 ? 'gain' : 'loss';
+  $('margenT').textContent = 'U$/ha';
+  $('dolor').textContent = f(dolor);
+  $('dolorT').textContent = P >= dolor ? `U$/t · hoy ${f(P - dolor)} por encima` : `U$/t · hoy ${f(dolor - P)} por debajo`;
+
+  draw(R, N, C, RI);
+}
+
+function draw(R, N, C, RI) {
+  const W = 640, H = 300, L = 58, Rt = 610, T = 28, B = 260;
+  const xMax = crop.R * 1.5;
+  const mMin = -C, mMax = Math.max(xMax * N - C, 50);
+  const x = v => L + (v / xMax) * (Rt - L);
+  const y = v => T + (mMax - v) / (mMax - mMin) * (B - T);
+  const z = y(0);
+  const set = (id, a) => { const el = $(id); for (const k in a) el.setAttribute(k, a[k]); };
+
+  set('lossBand', { x: L, y: z, width: Rt - L, height: Math.max(B - z, 0) });
+  set('gainBand', { x: L, y: T, width: Rt - L, height: Math.max(z - T, 0) });
+  set('zero', { x1: L, x2: Rt, y1: z, y2: z });
+  set('line', { x1: x(0), y1: y(-C), x2: x(xMax), y2: y(xMax * N - C) });
+
+  // ticks
+  const g = $('grid'); g.innerHTML = '';
+  const stepX = xMax > 10 ? 2 : xMax > 4 ? 1 : 0.5;
+  for (let v = 0; v <= xMax + 1e-9; v += stepX) {
+    g.insertAdjacentHTML('beforeend', `<line x1="${x(v)}" x2="${x(v)}" y1="${T}" y2="${B}" stroke="var(--line)"/><text x="${x(v)}" y="${B + 18}" text-anchor="middle">${f(v, stepX < 1 ? 1 : 0)}</text>`);
+  }
+  const span = mMax - mMin, rawStep = span / 5, mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
+  const stepY = [1, 2, 5, 10].map(s => s * mag).find(s => s >= rawStep);
+  for (let v = Math.ceil(mMin / stepY) * stepY; v <= mMax; v += stepY) {
+    g.insertAdjacentHTML('beforeend', `<text x="${L - 8}" y="${y(v) + 4}" text-anchor="end">${f(v)}</text>`);
+  }
+
+  const riIn = RI <= xMax;
+  set('riDot', { cx: riIn ? x(RI) : Rt, cy: z, opacity: riIn ? 1 : 0 });
+  set('riDrop', { x1: x(Math.min(RI, xMax)), x2: x(Math.min(RI, xMax)), y1: z, y2: B, opacity: riIn ? 1 : 0 });
+  set('riLbl', { x: Math.min(Math.max(x(Math.min(RI, xMax)), L + 60), Rt - 60), y: z - 14 });
+  $('riLbl').textContent = riIn ? `Indiferencia ${f(RI, 2)} t` : 'Indiferencia fuera del gráfico';
+
+  const em = R * N - C;
+  set('expDot', { cx: x(R), cy: y(em) });
+  set('expDrop', { x1: x(R), x2: x(R), y1: y(em), y2: B });
+  set('expLbl', { x: Math.min(Math.max(x(R), L + 60), Rt - 60), y: em >= 0 ? y(em) - 14 : y(em) + 24 });
+  $('expLbl').textContent = `Esperado ${f(R, 2)} t`;
+
+  set('lossTxt', { x: L + 10, y: Math.min(B - 10, z + 22) });
+  set('gainTxt', { x: Rt - 10, y: Math.max(T + 16, z - 14 > T + 16 ? T + 16 : T + 16) });
+}
+
+setup();
+</script>

@@ -1,0 +1,89 @@
+<title>Carrera de Silos</title>
+<style>
+:root{--bg:#101C17;--fg:#F5F1E6;--muted:#A9B5AD;--loss:#E07B39;--gain:#E0B252;--ok:#4FB477;--blue:#6FAED0}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);overflow:hidden;color-scheme:dark}
+body{font-family:'DM Sans',Arial,sans-serif;color:var(--fg)}
+#s{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:center;padding:72px 128px}
+.eb{font-size:24px;letter-spacing:4px;text-transform:uppercase;color:var(--gain);font-weight:700}
+h1{font-family:'Fraunces',Georgia,serif;font-size:64px;font-weight:600;line-height:1.1;margin-top:10px}
+#row{position:absolute;left:128px;right:128px;top:270px;display:flex;justify-content:space-between}
+.c{width:380px;display:flex;flex-direction:column}
+.vis{position:relative;height:520px;display:flex;gap:16px}
+.silo{position:relative;width:170px;height:520px;border:4px solid #3C5048;border-radius:85px 85px 16px 16px;background:#16261F;overflow:hidden}
+.fill{position:absolute;left:0;right:0;bottom:0;height:0;background:repeating-linear-gradient(135deg,var(--loss) 0 14px,#C4652B 14px 28px)}
+.c.ok .fill{background:repeating-linear-gradient(135deg,var(--ok) 0 14px,#3E9763 14px 28px)}
+.silo{transition:box-shadow .4s,border-color .4s}
+.c.ok .silo{border-color:var(--ok);box-shadow:0 0 40px rgba(79,180,119,.55)}
+.side{position:relative;flex:1}
+.ln{position:absolute;left:-200px;width:186px;border-top:4px dashed var(--fg)}
+.lab{position:absolute;left:22px;font-size:24px;line-height:1.15;transform:translateY(-50%)}
+.lab b{font-size:28px}
+.obj{color:var(--blue)}
+.tl{position:absolute;left:-200px;top:0;width:186px;border-top:4px solid var(--blue)}
+.gap{position:absolute;left:-10px;width:16px;border:4px solid var(--blue);border-left:0;opacity:0;transition:opacity .5s}
+.c.done .gap{opacity:1}
+.band{position:absolute;left:0;right:0;top:0;background:repeating-linear-gradient(135deg,rgba(111,174,208,.75) 0 14px,rgba(111,174,208,.55) 14px 28px);opacity:0;transition:opacity .6s}
+.c.done .band{opacity:1}
+.pop{position:absolute;left:22px;font-size:24px;font-weight:700;color:var(--bg);background:var(--ok);padding:4px 14px;border-radius:999px;opacity:0;transition:opacity .3s;white-space:nowrap;transform:translateY(-50%)}
+.c.ok:not(.done) .pop{opacity:1}
+.c.ok:not(.done) .lab.ri{opacity:0}
+.name{font-family:'Fraunces',Georgia,serif;font-size:40px;font-weight:600;margin-top:24px}
+.t{font-size:26px;color:var(--muted);font-variant-numeric:tabular-nums}
+.m{font-family:'Fraunces',Georgia,serif;font-size:56px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--loss);line-height:1.15}
+.m small{font-family:'DM Sans',Arial,sans-serif;font-size:24px;color:var(--muted);font-weight:400}
+.c.ok .m{color:var(--ok)}
+.br{font-size:28px;color:var(--blue);font-weight:700;opacity:0;transition:opacity .5s}
+.c.done .br{opacity:1}
+#hint{position:absolute;right:260px;bottom:40px;font-size:24px;color:var(--muted)}
+#btn{position:absolute;left:128px;bottom:32px;font:700 24px 'DM Sans',Arial,sans-serif;color:var(--bg);background:var(--fg);border:0;border-radius:999px;padding:10px 24px;cursor:pointer}
+</style>
+<div id="s">
+  <p class="eb">Rinde de indiferencia · la carrera</p>
+  <h1>¿En qué momento empieza a ganar cada cultivo?</h1>
+  <div id="row"></div>
+  <button id="btn" type="button">▶ Repetir</button>
+  <p id="hint">Naranja: todavía pierde · Verde: ya pagó todo · Azul: la brecha hasta el objetivo</p>
+</div>
+<script>
+const D=[
+ {n:'Girasol',R:2.6,N:477.72,C:972.71},
+ {n:'Girasol AO',R:2.6,N:496.58,C:975.73},
+ {n:'Maíz',R:8.5,N:158.42,C:1152.01},
+ {n:'Soja de 1ra',R:2.8,N:329.25,C:862.17}];
+const f=(v,d=0)=>v.toLocaleString('es-AR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const row=document.getElementById('row'),H=520;
+D.forEach(d=>{
+ d.RI=d.C/d.N; const p=d.RI/d.R, g=d.R-d.RI, y=H-p*H;
+ const gs=g<1?f(g*1000)+' kg':f(g,1)+' t';
+ const el=document.createElement('div');el.className='c';
+ el.innerHTML=`<div class="vis"><div class="silo"><div class="fill"></div><div class="band" style="height:${y}px"></div></div>
+  <div class="side">
+   <div class="tl"></div><div class="lab obj" style="top:0">Objetivo<br><b>${f(d.R,1)} t</b></div>
+   <div class="ln" style="top:${y}px"></div>
+   <div class="gap" style="top:0;height:${y}px"></div>
+   <div class="lab ri" style="top:${Math.max(y,70)}px">Indiferencia<br><b>${f(d.RI,2)} t</b></div>
+   <div class="pop" style="top:${Math.max(y,70)}px">¡Salió hecho!</div>
+  </div></div>
+  <p class="name">${d.n}</p><p class="t">0 t cosechadas</p>
+  <p class="m">0 <small>U$/ha</small></p>
+  <p class="br">Brecha: ${gs} · ${f(g/d.R*100)}%</p>`;
+ row.appendChild(el);d.el=el;d.fill=el.querySelector('.fill');d.t=el.querySelector('.t');d.m=el.querySelector('.m');
+});
+let t0=null;const DUR=7000;
+function frame(ts){
+ if(t0===null)t0=ts;let k=Math.min(1,(ts-t0)/DUR);k=1-Math.pow(1-k,1.6);
+ D.forEach(d=>{const r=d.R*k,m=r*d.N-d.C;
+  d.fill.style.height=(k*H)+'px';d.t.textContent=f(r,2)+' t cosechadas';
+  d.m.innerHTML=(m<0?'−':'+')+f(Math.abs(m))+' <small>U$/ha</small>';
+  d.el.classList.toggle('ok',r>=d.RI);d.el.classList.toggle('done',k>=1);});
+ if(k<1)requestAnimationFrame(frame);
+}
+function play(){t0=null;D.forEach(d=>d.el.classList.remove('ok','done'));requestAnimationFrame(frame);}
+document.getElementById('btn').onclick=play;
+addEventListener('keydown',e=>{if(e.key==='r'||e.key==='R')play();});
+function fit(){const s=document.getElementById('s'),k=Math.min(innerWidth/1920,innerHeight/1080);s.style.transform=`translate(-50%,-50%) scale(${k})`;}
+addEventListener('resize',fit);fit();
+window.replay=play;
+setTimeout(play,400);
+</script>
