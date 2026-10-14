@@ -1,5 +1,5 @@
 import os
-OUT = os.path.join(os.path.dirname(__file__), 'artifact-files/1ffab6a5-8ef6-4cd4-b238-10026b9bcbcd/project/slides/criticos.html')
+OUT = os.path.join(os.path.dirname(__file__), 'slides/criticos.html')
 MESES = ['Sep', 'Oct', 'Nov', 'Dic', 'Ene', 'Feb', 'Mar']
 ROWS = [  # nombre, niveles por mes (0 nada, 1 bajo, 2 medio, 3 critico), etapa, es_fina
     ('Colza', [2, 3, 1, 0, 0, 0, 0], 'floración', True),
