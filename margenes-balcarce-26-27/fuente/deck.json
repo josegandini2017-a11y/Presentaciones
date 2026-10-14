@@ -1,0 +1,63 @@
+{
+  "v": 4,
+  "attachments": {},
+  "createdOnFiles": {
+    "at": "2026-10-12T17:00:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "faces": {
+    "dm-sans": {
+      "family": "DM Sans",
+      "href": "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400..700&display=swap"
+    },
+    "fraunces": {
+      "family": "Fraunces",
+      "href": "https://fonts.googleapis.com/css2?family=Fraunces:wght@400..800&display=swap"
+    }
+  },
+  "lists": "css",
+  "order": [
+    "cover",
+    "supuestos",
+    "ranking",
+    "renta",
+    "retorno",
+    "carrera",
+    "indif-rinde",
+    "carrera-precio",
+    "precio-dolor",
+    "sens-gruesa",
+    "mapa-riesgo",
+    "criticos",
+    "cierre",
+    "fert-cover",
+    "fert-idea",
+    "fert-eun",
+    "fert-nzn",
+    "fert-cierre"
+  ],
+  "sections": {
+    "s1": {
+      "description": "Punto de partida: supuestos de precio, rinde y alquiler",
+      "start": "cover"
+    },
+    "s2": {
+      "description": "Resultado: margen bruto, costos por rubro y retorno por cultivo",
+      "start": "ranking"
+    },
+    "s3": {
+      "description": "Riesgo: rinde de indiferencia, precio dolor y sensibilidad",
+      "start": "indif-rinde"
+    },
+    "s4": {
+      "description": "Cierre: mensajes para decidir la rotación",
+      "start": "cierre"
+    },
+    "s5": {
+      "description": "Anexo: fertilización balanceada NP + S + Zn y sinergismo de nutrientes",
+      "start": "fert-cover"
+    }
+  },
+  "title": "Márgenes Brutos 26/27 Balcarce"
+}

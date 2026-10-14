@@ -1,0 +1,73 @@
+<section id="renta" data-transition="fade" style="background:#F5F1E6;color:#1C2B24;font-family:'DM Sans', Arial, sans-serif;padding:0">
+<x-embed style="position:absolute;left:0px;top:0px;width:1920px;height:1080px"><style>
+:root{--bg:#F5F1E6;--fg:#1C2B24;--muted:#5B655E;--blue:#2B6A8A}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);overflow:hidden}
+body{font-family:'DM Sans',Arial,sans-serif;color:var(--fg)}
+#s{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:center;padding:96px 128px}
+.eb{font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#8C6418;font-weight:700}
+h1{font-family:'Fraunces',Georgia,serif;font-size:68px;font-weight:600;line-height:1.1;margin-top:10px}
+#tabs{position:absolute;left:128px;top:270px;display:flex;gap:12px}
+#tabs p{font-size:28px;font-weight:700;padding:8px 22px;border-radius:999px;border:2px solid #CFC4A8;color:var(--muted);transition:all .3s}
+#tabs p.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+#top{position:absolute;left:128px;top:372px;width:1140px;display:flex;justify-content:space-between;align-items:baseline}
+#top p{font-size:30px;color:var(--muted)}
+#top b{font-family:'Fraunces',Georgia,serif;font-size:56px;color:var(--fg)}
+#bag{position:absolute;left:128px;top:450px;width:1140px;height:330px;border-radius:165px;background:repeating-linear-gradient(90deg,#FFFFFF 0 70px,#F1EEE6 70px 74px);border:6px solid #CFC9BA;overflow:hidden;box-shadow:inset 0 -24px 40px rgba(0,0,0,.08),0 16px 30px rgba(28,43,36,.15)}
+#fill{position:absolute;left:0;top:0;bottom:0;width:100%;background:repeating-linear-gradient(135deg,#E0B252 0 16px,#CFA040 16px 32px);transition:width 1s cubic-bezier(.3,.8,.3,1),background .6s}
+#bag.done #fill{background:repeating-linear-gradient(135deg,#2B6A8A 0 16px,#245B77 16px 32px)}
+#left{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;font-family:'Fraunces',Georgia,serif;font-size:96px;font-weight:700;color:#1C2B24;text-shadow:0 2px 0 rgba(255,255,255,.5);transition:color .4s}
+#bag.done #left{color:#F5F8FA;text-shadow:none}
+#tie{position:absolute;left:1258px;top:575px;width:46px;height:80px;border-radius:10px;background:#CFC9BA}
+#cap{position:absolute;left:128px;top:810px;display:flex;align-items:center;gap:18px}
+#chip{width:40px;height:40px;border-radius:10px;background:#D8CFB8;transition:background .3s}
+#ctx{font-family:'Fraunces',Georgia,serif;font-size:46px;font-weight:600}
+#side{position:absolute;left:1370px;top:290px;width:422px;background:var(--fg);color:var(--bg);border-radius:20px;padding:28px 28px 22px}
+#side h3{font-size:24px;font-weight:700;color:#E0B252;letter-spacing:2px;text-transform:uppercase}
+.it{display:flex;align-items:center;gap:14px;margin-top:14px;opacity:0;transform:translateX(-60px);transition:all .5s}
+.it.on{opacity:1;transform:none}
+.it i{width:26px;height:26px;border-radius:6px;flex:none}
+.it p{flex:1;font-size:26px}
+.it b{font-family:'Fraunces',Georgia,serif;font-size:34px}
+.it.m{margin-top:20px;padding-top:14px;border-top:2px solid #3C5048}
+.it.m p,.it.m b{color:#7FC0E0}
+#sc{position:absolute;left:128px;top:900px;display:flex;gap:14px;align-items:center}
+#sc span{font-size:26px;color:var(--muted);margin-right:6px}
+#sc p{font-size:26px;padding:6px 16px;border-radius:999px;background:#E2DACA;color:#9A9384;transition:all .4s}
+#sc p.on{background:var(--blue);color:#F5F8FA}
+</style>
+<div id="s">
+  <p class="eb">A dónde va la cosecha · U$/ha</p>
+  <h1>La bolsa llena… y lo que queda</h1>
+  <div id="tabs"></div>
+  <div id="top"><p id="tl">Entran por hectárea</p><b id="tv"></b></div>
+  <div id="bag"><div id="fill"></div><p id="left"></p></div><div id="tie"></div>
+  <div id="cap"><div id="chip"></div><p id="ctx"></p></div>
+  <div id="side"><h3>Se va en…</h3><div id="list"></div></div>
+  <div id="sc"><span>Queda de margen:</span></div>
+</div>
+<script>
+const RUB=[['Alquiler','#B8862B'],['Labores','#5C3D2E'],['Semilla','#E3A72F'],['Fertilizantes','#4E8A3E'],['Agroquímicos','#C2452D'],['Cosecha y seguro','#8B6FBF'],['Gerenciamiento','#8A9499']];
+const D=[['Girasol AO',[426,101,99,100,120,100,30],315],['Girasol',[426,99,90,100,118,100,40],269],['Maíz',[426,136,108,195,122,135,30],195],['Soja de 1ra',[426,82,70,31,94,120,40],60]];
+const $=i=>document.getElementById(i),f=v=>v.toLocaleString('es-AR');
+const tabs=$('tabs'),list=$('list'),sc=$('sc'),fill=$('fill'),bag=$('bag'),left=$('left'),chip=$('chip'),ctx=$('ctx');
+D.forEach(([n,,m])=>{const t=document.createElement('p');t.textContent=n;tabs.appendChild(t);const c=document.createElement('p');c.textContent=n+' '+m;sc.appendChild(c);});
+let timer=null;const wait=ms=>new Promise(r=>timer=setTimeout(r,ms));
+async function crop(ci){const [n,c,m]=D[ci],tot=c.reduce((a,b)=>a+b,0)+m;
+ [...tabs.children].forEach((t,i)=>t.classList.toggle('on',i===ci));
+ bag.classList.remove('done');fill.style.transition='none';fill.style.width='100%';void fill.offsetWidth;fill.style.transition='';
+ $('tv').textContent=f(tot)+' U$';left.textContent=f(tot);chip.style.background='#E0B252';ctx.textContent=n+': la bolsa llena';
+ list.innerHTML=c.map((v,i)=>`<div class="it"><i style="background:${RUB[i][1]}"></i><p>${RUB[i][0]}</p><b>${v}</b></div>`).join('')+`<div class="it m"><i style="background:#2B6A8A"></i><p>Margen</p><b>${m}</b></div>`;
+ await wait(1600);let rem=tot;
+ for(let i=0;i<c.length;i++){rem-=c[i];fill.style.width=(rem/tot*100)+'%';left.textContent=f(rem);
+  chip.style.background=RUB[i][1];ctx.textContent=`Sale ${RUB[i][0].toLowerCase()}: ${c[i]} U$`;list.children[i].classList.add('on');await wait(i===0?1800:1200);}
+ bag.classList.add('done');left.textContent='+'+m;chip.style.background='#2B6A8A';ctx.textContent=`Queda en la bolsa: ${m} U$/ha de margen`;
+ list.children[7].classList.add('on');sc.children[ci+1].classList.add('on');await wait(3400);}
+async function play(){clearTimeout(timer);[...sc.children].forEach(c=>c.classList.remove('on'));for(let i=0;i<D.length;i++)await crop(i);await wait(2500);play();}
+function fit(){const s=$('s'),k=Math.min(innerWidth/1920,innerHeight/1080);s.style.transform=`translate(-50%,-50%) scale(${k})`;}
+addEventListener('resize',fit);fit();window.replay=()=>{};play();
+</script>
+</x-embed>
+<img src="/_blob/f6bd1d58341dd9e8a1a558b4880f8941" alt="6G Agro" style="position:absolute;left:1688px;top:968px;width:104px;height:88px;object-fit:contain;border-radius:6px">
+<aside>La bolsa llena es todo lo que entra por hectárea. Primero sale el alquiler, 426 dólares, el pedazo más grande. Después salen labores, semilla, fertilizantes, agroquímicos, cosecha y seguro, y gerenciamiento. Lo que queda en la bolsa, en azul, es el margen: 315 en girasol alto oleico, 269 en girasol, 195 en maíz y apenas 60 en soja de primera. Pasa por los cuatro cultivos y se repite sola.</aside>
+</section>

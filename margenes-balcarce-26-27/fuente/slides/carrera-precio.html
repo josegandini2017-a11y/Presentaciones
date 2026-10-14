@@ -1,0 +1,64 @@
+<section id="carrera-precio" data-transition="fade" style="background:#101C17;color:#F5F1E6;font-family:'DM Sans', Arial, sans-serif;padding:0">
+<x-embed style="position:absolute;left:0px;top:0px;width:1920px;height:1080px"><style>
+:root{--bg:#101C17;--fg:#F5F1E6;--muted:#A9B5AD;--loss:#E07B39;--gain:#E0B252;--ok:#4FB477;--blue:#6FAED0}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);overflow:hidden;color-scheme:dark}
+body{font-family:'DM Sans',Arial,sans-serif;color:var(--fg)}
+#s{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:center;padding:72px 128px}
+.eb{font-size:24px;letter-spacing:4px;text-transform:uppercase;color:var(--gain);font-weight:700}
+h1{font-family:'Fraunces',Georgia,serif;font-size:64px;font-weight:600;line-height:1.1;margin-top:10px}
+#row{position:absolute;left:128px;right:128px;top:270px;display:flex;justify-content:space-between}
+.c{width:380px;display:flex;flex-direction:column}
+.vis{position:relative;height:520px;display:flex;gap:16px}
+.silo{position:relative;width:170px;height:520px;border:4px solid #3C5048;border-radius:85px;background:#16261F;overflow:hidden}
+.fill{position:absolute;left:0;right:0;bottom:0;height:0;background:repeating-linear-gradient(135deg,var(--loss) 0 14px,#C4652B 14px 28px)}
+.c.ok .fill{background:repeating-linear-gradient(135deg,var(--ok) 0 14px,#3E9763 14px 28px)}
+.silo{transition:box-shadow .4s,border-color .4s}
+.c.ok .silo{border-color:var(--ok);box-shadow:0 0 40px rgba(79,180,119,.55)}
+.side{position:relative;flex:1}
+.ln{position:absolute;left:-200px;width:186px;border-top:4px dashed var(--fg)}
+.lab{position:absolute;left:22px;font-size:24px;line-height:1.15;transform:translateY(-50%)}
+.lab b{font-size:28px}
+.obj{color:var(--blue)}
+.tl{position:absolute;left:-200px;top:0;width:186px;border-top:4px solid var(--blue)}
+.gap{position:absolute;left:-10px;width:16px;border:4px solid var(--blue);border-left:0;opacity:0;transition:opacity .5s}
+.c.done .gap{opacity:1}
+.band{position:absolute;left:0;right:0;top:0;background:repeating-linear-gradient(135deg,rgba(111,174,208,.75) 0 14px,rgba(111,174,208,.55) 14px 28px);opacity:0;transition:opacity .6s}
+.c.done .band{opacity:1}
+.pop{position:absolute;left:22px;font-size:24px;font-weight:700;color:var(--bg);background:var(--ok);padding:4px 14px;border-radius:999px;opacity:0;transition:opacity .3s;white-space:nowrap;transform:translateY(-50%)}
+.c.ok:not(.done) .pop{opacity:1}
+.c.ok:not(.done) .lab.ri{opacity:0}
+.name{font-family:'Fraunces',Georgia,serif;font-size:40px;font-weight:600;margin-top:24px}
+.t{font-size:26px;color:var(--muted);font-variant-numeric:tabular-nums}
+.m{font-family:'Fraunces',Georgia,serif;font-size:56px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--loss);line-height:1.15}
+.m small{font-family:'DM Sans',Arial,sans-serif;font-size:24px;color:var(--muted);font-weight:400}
+.c.ok .m{color:var(--ok)}
+.br{font-size:28px;color:var(--blue);font-weight:700;opacity:0;transition:opacity .5s}
+.c.done .br{opacity:1}
+#hint{position:absolute;left:128px;right:260px;bottom:40px;font-size:24px;color:var(--muted)}
+#btn{position:absolute;left:128px;bottom:32px;font:700 24px 'DM Sans',Arial,sans-serif;color:var(--bg);background:var(--fg);border:0;border-radius:999px;padding:10px 24px;cursor:pointer}
+</style>
+<div id="s"> <p class="eb">Precio dolor · la carrera</p> <h1>¿A qué precio empieza a ganar cada cultivo?</h1> <div id="row"></div> <p id="hint">Termómetro desde el 50% de la pizarra · Naranja: pierde · Verde: gana · Azul: cuánto puede bajar el precio</p>
+</div>
+<script>
+// P pizarra hoy, PD precio dolor; el termómetro arranca en el 50% de la pizarra
+const D=[ {n:'Girasol',R:2.6,a:1.13,b:-30.7808,C:972.71,P:450}, {n:'Girasol AO',R:2.6,a:1.127,b:-10.5652,C:975.73,P:450}, {n:'Maíz',R:8.5,a:1,b:-41.5808,C:1152.01,P:200}, {n:'Soja de 1ra',R:2.8,a:1,b:-25.75,C:862.17,P:355}];
+const LO=0.5;
+const f=(v,d=0)=>v.toLocaleString('es-AR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const row=document.getElementById('row'),H=520;
+D.forEach(d=>{ d.PD=(d.C/d.R-d.b)/d.a; const p=(d.PD/d.P-LO)/(1-LO), g=d.P-d.PD, y=H-p*H; const gs=f(g)+' U$/t'; const el=document.createElement('div');el.className='c'; el.innerHTML=`<div class="vis"><div class="silo"><div class="fill"></div><div class="band" style="height:${y}px"></div></div> <div class="side"> <div class="tl"></div><div class="lab obj" style="top:0">Pizarra hoy<br><b>${f(d.P)} U$</b></div> <div class="ln" style="top:${y}px"></div> <div class="gap" style="top:0;height:${y}px"></div> <div class="lab ri" style="top:${Math.max(y,70)}px">Precio dolor<br><b>${f(d.PD)} U$</b></div> <div class="pop" style="top:${Math.max(y,70)}px">¡Ya gana!</div> </div></div> <p class="name">${d.n}</p><p class="t">Pizarra 0 U$/t</p> <p class="m">0 <small>U$/ha</small></p> <p class="br">Puede bajar: ${gs} · ${f(g/d.P*100)}%</p>`; row.appendChild(el);d.el=el;d.fill=el.querySelector('.fill');d.t=el.querySelector('.t');d.m=el.querySelector('.m');
+});
+let t0=null;const DUR=7000;
+function frame(ts){ if(t0===null)t0=ts;let k=Math.min(1,(ts-t0)/DUR);k=1-Math.pow(1-k,1.6); D.forEach(d=>{const pr=d.P*(LO+(1-LO)*k),m=d.R*(d.a*pr+d.b)-d.C,r=pr;d.RI=d.PD; d.fill.style.height=(k*H)+'px';d.t.textContent='Pizarra '+f(pr)+' U$/t'; d.m.innerHTML=(m<0?'−':'+')+f(Math.abs(m))+' <small>U$/ha</small>'; d.el.classList.toggle('ok',r>=d.RI);d.el.classList.toggle('done',k>=1);}); if(k<1)requestAnimationFrame(frame);else setTimeout(play,4500);
+}
+function play(){t0=null;D.forEach(d=>d.el.classList.remove('ok','done'));requestAnimationFrame(frame);}
+addEventListener('keydown',e=>{if(e.key==='r'||e.key==='R')play();});
+function fit(){const s=document.getElementById('s'),k=Math.min(innerWidth/1920,innerHeight/1080);s.style.transform=`translate(-50%,-50%) scale(${k})`;}
+addEventListener('resize',fit);fit();
+window.replay=play;
+setTimeout(play,400);
+</script>
+</x-embed>
+<img src="/_blob/f6bd1d58341dd9e8a1a558b4880f8941" alt="6G Agro" style="position:absolute;left:1688px;top:968px;width:104px;height:88px;object-fit:contain;border-radius:6px">
+<aside>La carrera del precio: el precio sube desde la mitad de la pizarra hasta el precio de hoy, con el rinde esperado. Naranja mientras pierde; al pasar el precio dolor se pone verde. La soja de primera recién gana muy cerca del precio de hoy; el girasol alto oleico gana con la pizarra un 24% más baja; la bonificación por materia grasa baja junto con el precio. Al final, en azul, cuánto puede bajar el precio sin perder. La animación se repite sola.</aside>
+</section>
